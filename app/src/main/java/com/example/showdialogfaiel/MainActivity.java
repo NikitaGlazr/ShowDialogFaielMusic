@@ -5,6 +5,8 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -36,21 +38,26 @@ public class MainActivity extends AppCompatActivity {
     SeekBar volumeControl;
     AudioManager audioManager;
 
-    int[] musicFiles = {R.raw.musicmoroxz, R.raw.music2, R.raw.dimok, R.raw.music4};
+    int[] musicFiles = {R.raw.musicmoroxz, R.raw.music2, R.raw.sharik, R.raw.music4, R.raw.dimok,};
     int currentSongIndex = 0;
+
+    ListView songListView;
+    ArrayAdapter<String> adapter;
+    ArrayList<String> songList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPlayer=MediaPlayer.create(this, R.raw.musicmoroxz);
+        mPlayer = MediaPlayer.create(this, R.raw.musicmoroxz);
         mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 stopPlay();
             }
         });
+
         playButton = findViewById(R.id.playButton);
         pauseButton = findViewById(R.id.pauseButton);
         stopButton = findViewById(R.id.stopButton);
@@ -69,13 +76,13 @@ public class MainActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
             }
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
+
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
 
@@ -102,23 +109,44 @@ public class MainActivity extends AppCompatActivity {
                 isSeeking = false;
             }
         });
-        new Thread(() -> {
-            while (mPlayer != null) {
-                try {
-                    if (isSeeking) {
-                        continue;
-                    }
 
-                    runOnUiThread(() -> seekBar.setProgress(mPlayer.getCurrentPosition()));
-
-                    Thread.sleep(1000); // Update every second
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        initializeListView();
     }
-    
+
+    private void initializeListView() {
+        songListView = findViewById(R.id.songListView);
+        songList = new ArrayList<>();
+        songList.add("Song moroz 1");
+        songList.add("Song 80-ex 2");
+        songList.add("Song sharik 3");
+        songList.add("Song volkonaft 4");
+        songList.add("Song mem 5");
+
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, songList) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                if (position == currentSongIndex) {
+                    view.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light));
+                } else {
+                    view.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                }
+                return view;
+            }
+        };
+
+        songListView.setAdapter(adapter);
+
+        songListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                currentSongIndex = position;
+                playNewTrack();
+                adapter.notifyDataSetChanged();
+            }
+        });
+    }
+
 
     public void play(View view){
         mPlayer.start();
