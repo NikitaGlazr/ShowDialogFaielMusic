@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -38,7 +39,9 @@ public class MainActivity extends AppCompatActivity {
     SeekBar volumeControl;
     AudioManager audioManager;
 
-    int[] musicFiles = {R.raw.musicmoroxz, R.raw.music2, R.raw.sharik, R.raw.music4, R.raw.dimok,};
+    int[] musicFiles = {R.raw.musicmoroxz, R.raw.music2, R.raw.sharik, R.raw.music4,
+            R.raw.dimok,R.raw.doktorlivsi,
+            R.raw.samyjjdorogojjchelovek, R.raw.vladimirskijjcentral, };
     int currentSongIndex = 0;
 
     ListView songListView;
@@ -121,13 +124,19 @@ public class MainActivity extends AppCompatActivity {
         songList.add("Song sharik 3");
         songList.add("Song volkonaft 4");
         songList.add("Song mem 5");
+        songList.add("Song Dockor Livsi 6");
+        songList.add("Song samyjj dorogojj chelovek 7");
+        songList.add("Song vladimirskijj central 8");
+        songList.add("Song proverka lista 9");
+        songList.add("Song proverka lista 10");
+        songList.add("Song proverka lista 11");
 
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, songList) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 if (position == currentSongIndex) {
-                    view.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_light));
+                    view.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark));
                 } else {
                     view.setBackgroundColor(getResources().getColor(android.R.color.transparent));
                 }
@@ -143,6 +152,17 @@ public class MainActivity extends AppCompatActivity {
                 currentSongIndex = position;
                 playNewTrack();
                 adapter.notifyDataSetChanged();
+            }
+        });
+        final Handler handler = new Handler();
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mPlayer != null) {
+                    int mCurrentPosition = mPlayer.getCurrentPosition();
+                    seekBar.setProgress(mCurrentPosition);
+                }
+                handler.postDelayed(this, 1000); // обновлять каждую секунду
             }
         });
     }
